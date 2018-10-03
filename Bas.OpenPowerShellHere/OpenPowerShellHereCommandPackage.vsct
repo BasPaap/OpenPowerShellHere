@@ -36,9 +36,7 @@
          group as the part of a menu contained between two lines. The parent of a group
          must be a menu. -->
     <Groups>
-      <Group guid="guidOpenPowerShellHereCommandPackageCmdSet" id="MyMenuGroup" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
-      </Group>
+      <Group guid="guidOpenPowerShellHereCommandPackageCmdSet" id="MyMenuGroup" priority="0x0600" />              
     </Groups>
 
     <!--Buttons section. -->
@@ -56,7 +54,7 @@
         <Parent guid="guidOpenPowerShellHereCommandPackageCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
-          <ButtonText>Invoke OpenPowerShellHereCommand</ButtonText>
+          <ButtonText>Open PowerShell here</ButtonText>
         </Strings>
       </Button>
     </Buttons>
@@ -71,6 +69,25 @@
       <Bitmap guid="guidImages" href="Resources\OpenPowerShellHereCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>
     </Bitmaps>
   </Commands>
+
+  <CommandPlacements>
+    <CommandPlacement guid="guidOpenPowerShellHereCommandPackageCmdSet" id="MyMenuGroup" priority="0xFFFF">
+      <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_PROJNODE"/>
+    </CommandPlacement>
+
+    <CommandPlacement guid="guidOpenPowerShellHereCommandPackageCmdSet" id="MyMenuGroup" priority="0xFFFF">
+      <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ITEMNODE"/>
+    </CommandPlacement>
+
+    <CommandPlacement guid="guidOpenPowerShellHereCommandPackageCmdSet" id="MyMenuGroup" priority="0xFFFF">
+      <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_FOLDERNODE"/>
+    </CommandPlacement>
+  
+    <CommandPlacement guid="guidOpenPowerShellHereCommandPackageCmdSet" id="MyMenuGroup" priority="0xFFFF">
+      <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_SOLNNODE"/>
+    </CommandPlacement>  
+  </CommandPlacements>
+
 
   <Symbols>
     <!-- This is the package guid. -->

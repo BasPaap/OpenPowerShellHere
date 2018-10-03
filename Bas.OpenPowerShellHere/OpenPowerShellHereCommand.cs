@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel.Design;
 using System.Globalization;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Shell;
@@ -88,18 +90,65 @@ namespace Bas.OpenPowerShellHere
         /// <param name="e">Event args.</param>
         private void Execute(object sender, EventArgs e)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
-            string title = "OpenPowerShellHereCommand";
 
-            // Show a message box to prove we were here
-            VsShellUtilities.ShowMessageBox(
-                this.package,
-                message,
-                title,
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+
+            var folderPath = GetSelectedItemFolderPath();
+
+            var process = new System.Diagnostics.Process();
+            process.StartInfo.FileName = "pwsh.exe";
+            //process.StartInfo.Arguments = options;
+            process.StartInfo.WorkingDirectory = folderPath;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = false;
+
+            process.Start();
+        }
+
+        private static string GetSelectedItemFolderPath()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var monitorSelection = Package.GetGlobalService(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
+            var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
+
+            IVsMultiItemSelect multiItemSelect = null;
+            IntPtr hierarchyPtr = IntPtr.Zero;
+            IntPtr selectionContainerPtr = IntPtr.Zero;
+
+            try
+            {
+                var hr = monitorSelection.GetCurrentSelection(out hierarchyPtr, out uint itemId, out multiItemSelect, out selectionContainerPtr);
+
+                if (multiItemSelect == null)
+                {
+                    if (hierarchyPtr.ToInt32() == 0)
+                    {
+                        solution.GetSolutionInfo(out string solutionPath, out _, out _);
+                        return solutionPath;
+                    }
+                    else
+                    {
+                        var hierarchy = Marshal.GetObjectForIUnknown(hierarchyPtr) as IVsHierarchy;
+
+                        ((IVsProject)hierarchy).GetMkDocument(itemId, out string itemFullPath);
+
+                        return Path.GetDirectoryName(itemFullPath);
+                    }
+                }
+            }
+            finally
+            {
+                if (selectionContainerPtr != IntPtr.Zero)
+                {
+                    Marshal.Release(selectionContainerPtr);
+                }
+
+                if (hierarchyPtr != IntPtr.Zero)
+                {
+                    Marshal.Release(hierarchyPtr);
+                }
+            }
+
+            return null;
         }
     }
 }
