@@ -81,6 +81,10 @@
     </VSCTCompile>
     <Content Include="Resources\OpenPowerShellHereCommand.png" />
     <Content Include="Resources\OpenPowerShellHereCommandPackage.ico" />
+    <Content Include="Resources\openpowershellicon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="stylesheet.css" />
   </ItemGroup>
   <ItemGroup>
