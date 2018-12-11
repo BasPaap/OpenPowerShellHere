@@ -90,7 +90,13 @@ namespace Bas.OpenPowerShellHere
         /// <param name="e">Event args.</param>
         private void Execute(object sender, EventArgs e)
         {
-
+            var paths = new[]
+            {
+                "pwsh.exe",
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "PowerShell\\6\\pwsh.exe"),
+                "powershell.exe",
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")
+            };
 
             var folderPath = GetSelectedItemFolderPath();
 
