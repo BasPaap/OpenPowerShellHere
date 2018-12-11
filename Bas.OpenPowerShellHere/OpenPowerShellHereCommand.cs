@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
-using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 
 namespace Bas.OpenPowerShellHere
@@ -90,24 +88,35 @@ namespace Bas.OpenPowerShellHere
         /// <param name="e">Event args.</param>
         private void Execute(object sender, EventArgs e)
         {
-            var paths = new[]
-            {
-                "pwsh.exe",
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "PowerShell\\6\\pwsh.exe"),
-                "powershell.exe",
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")
-            };
-
             var folderPath = GetSelectedItemFolderPath();
 
-            var process = new System.Diagnostics.Process();
-            process.StartInfo.FileName = "pwsh.exe";
-            //process.StartInfo.Arguments = options;
-            process.StartInfo.WorkingDirectory = folderPath;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = false;
+            var powershellPaths = new[]
+            {
+                Path.Combine(Environment.GetEnvironmentVariable("ProgramW6432"), "PowerShell\\6\\pwsh.exe"), // Try powershell 6 first
+                "pwsh.exe", // hopefully if it's in another folder, that folder is in the PATH.
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe"), // otherwise try Powershell 1
+                "powershell.exe"
+            };
 
-            process.Start();
+            foreach (var powershellPath in powershellPaths)
+            {
+                var process = new System.Diagnostics.Process();
+                process.StartInfo.FileName = powershellPath;
+                //process.StartInfo.Arguments = options;
+                process.StartInfo.WorkingDirectory = folderPath;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = false;
+
+                try
+                {
+                    process.Start();
+                    break; // If powershell was launched successfully, we can exit the loop and the function.
+                }
+                catch
+                {
+                    continue; // if not, try again with the next path.
+                }
+            }
         }
 
         private static string GetSelectedItemFolderPath()
